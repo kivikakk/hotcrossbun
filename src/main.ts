@@ -74,7 +74,15 @@ function emptyInput(puzzle: Puzzle): Input {
   };
 }
 
-const input: Input = emptyInput(puzzle)
+let input: Input = emptyInput(puzzle)
+
+const saved = window.localStorage.getItem('saved')
+if (saved !== null) {
+  input = JSON.parse(saved) as Input;
+}
+function saveState(): void {
+  window.localStorage.setItem('saved', JSON.stringify(input));
+}
 
 // const puzzle: Puzzle = {
 //   palette: [
@@ -278,6 +286,7 @@ function mouseTrigger(): void {
   }
   if (hovered) {
     input.pixels[hovered.y][hovered.x] = (mouseButtonDown === 'left' ? selectedColor : null);
+    saveState();
   }
 }
 
