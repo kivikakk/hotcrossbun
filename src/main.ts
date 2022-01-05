@@ -17,29 +17,52 @@ interface Puzzle {
   pixels: number[][],
 };
 
+// const puzzle: Puzzle = {
+//   palette: [
+//     'black',
+//     'yellow',
+//     'white',
+//   ],
+//   bg: '#666',
+//   width: 10,
+//   height: 10,
+//   pixels: [
+//     [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
+//     [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+//     [1, 1, 1, 0, 1, 1, 0, 1, 1, 1],
+//     [1, 1, 1, 0, 1, 1, 0, 1, 1, 1],
+//     [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+//     [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+//     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+//     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+//     [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+//     [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
+//   ],
+// };
+
 const puzzle: Puzzle = {
   palette: [
-    'black',
-    'yellow',
+	'green',
     'white',
+    'yellow',
+    'black',
   ],
-  bg: '#666',
+  bg: '#306090',
   width: 10,
   height: 10,
   pixels: [
-    [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
-    [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-    [1, 1, 1, 0, 1, 1, 0, 1, 1, 1],
-    [1, 1, 1, 0, 1, 1, 0, 1, 1, 1],
-    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-    [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 2, 0, 2, 0, 0],
+    [0, 1, 0, 0, 2, 2, 2, 2, 2, 0],
+    [0, 1, 0, 0, 0, 2, 2, 2, 0, 0],
+    [0, 1, 0, 0, 0, 0, 2, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [3, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [3, 3, 0, 2, 0, 2, 3, 3, 0, 1],
+    [3, 0, 3, 2, 0, 2, 3, 0, 3, 0],
+    [3, 3, 3, 2, 2, 2, 3, 0, 3, 1],
   ],
 };
-
 interface Input {
   pixels: (number | null)[][],
 };
@@ -118,7 +141,7 @@ function hintPuzzle(puzzle: Puzzle, color: number, kind: 'row' | 'column', rc: n
   }
   return {
     count,
-    contiguous,
+    contiguous: contiguous && count !== 1,
   }
 }
 
@@ -240,6 +263,12 @@ window.addEventListener("keydown", (e) => {
     selectedColor = (selectedColor + 1) % puzzle.palette.length;
   } else if (e.key === 'ArrowLeft') {
     selectedColor = (selectedColor + puzzle.palette.length - 1) % puzzle.palette.length;
+  } else if (e.key === 's') {
+    for (let y = 0; y < puzzle.height; y++) {
+      for (let x = 0; x < puzzle.width; x++) {
+        input.pixels[y][x] = puzzle.pixels[y][x];
+      }
+    }
   }
 })
 
