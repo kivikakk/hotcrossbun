@@ -39,7 +39,36 @@ export function drawHint(ctx: CanvasRenderingContext2D, puzzle: Puzzle, playerHi
 
 export function drawPuzzle(ctx: CanvasRenderingContext2D, puzzle: Puzzle, input: Input): void {
   const offset = INSET + puzzle.palette.length * (HINT_SIZE + HINT_GAP);
-  hovered = null
+  let complete = true;
+
+  ctx.font = `${HINT_SIZE}px Arial Bold`;
+  ctx.textBaseline = 'middle'
+
+  for (let y = 0; y < puzzle.height; y++) {
+    for (let c = 0; c < puzzle.palette.length; c++) {
+      const playerHint = playerHintPuzzle(puzzle, input, c, 'row', y);
+      if (playerHint) {
+        complete = false;
+        const tx = INSET + (HINT_SIZE + HINT_GAP) * c + HINT_SIZE / 2;
+        const ty = offset + y * (SQUARE + GAP) + SQUARE / 2;
+        drawHint(ctx, puzzle, playerHint, c, tx, ty);
+      }
+    }
+  }
+
+  for (let x = 0; x < puzzle.width; x++) {
+    for (let c = 0; c < puzzle.palette.length; c++) {
+      const playerHint = playerHintPuzzle(puzzle, input, c, 'column', x);
+      if (playerHint) {
+        complete = false;
+        const tx = offset + x * (SQUARE + GAP) + SQUARE / 2;
+        const ty = INSET + (HINT_SIZE + HINT_GAP) * c + HINT_SIZE / 2;
+        drawHint(ctx, puzzle, playerHint, c, tx, ty);
+      }
+    }
+  }
+
+  hovered = null;
   for (let y = 0; y < puzzle.height; y++) {
     for (let x = 0; x < puzzle.width; x++) {
       const sx = offset + x * (SQUARE + GAP)
@@ -59,29 +88,8 @@ export function drawPuzzle(ctx: CanvasRenderingContext2D, puzzle: Puzzle, input:
         }
       } else if (c !== null) {
         ctx.fillStyle = puzzle.palette[c];
-        ctx.fillRect(sx, sy, SQUARE, SQUARE);
+        ctx.fillRect(sx, sy, SQUARE + (complete ? GAP : 0), SQUARE + (complete ? GAP : 0));
       }
-    }
-  }
-
-  ctx.font = `${HINT_SIZE}px Arial Bold`;
-  ctx.textBaseline = 'middle'
-
-  for (let y = 0; y < puzzle.height; y++) {
-    for (let c = 0; c < puzzle.palette.length; c++) {
-      const playerHint = playerHintPuzzle(puzzle, input, c, 'row', y);
-      const tx = INSET + (HINT_SIZE + HINT_GAP) * c + HINT_SIZE / 2;
-      const ty = offset + y * (SQUARE + GAP) + SQUARE / 2;
-      drawHint(ctx, puzzle, playerHint, c, tx, ty);
-    }
-  }
-
-  for (let x = 0; x < puzzle.width; x++) {
-    for (let c = 0; c < puzzle.palette.length; c++) {
-      const playerHint = playerHintPuzzle(puzzle, input, c, 'column', x);
-      const tx = offset + x * (SQUARE + GAP) + SQUARE / 2;
-      const ty = INSET + (HINT_SIZE + HINT_GAP) * c + HINT_SIZE / 2;
-      drawHint(ctx, puzzle, playerHint, c, tx, ty);
     }
   }
 
