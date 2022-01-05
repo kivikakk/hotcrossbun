@@ -6,3 +6,13 @@ export interface Puzzle {
   height: number,
   pixels: number[][],
 };
+
+export interface Input {
+  pixels: (number | null)[][],
+};
+
+export function emptyInput(puzzle: Puzzle): Input {
+  return {
+    pixels: Array.from(Array(puzzle.height), () => Array(puzzle.width).fill(null)),
+  };
+}
