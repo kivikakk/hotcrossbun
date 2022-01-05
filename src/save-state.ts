@@ -11,9 +11,14 @@ export function init(puzzle: Puzzle): void {
   const saved = window.localStorage.getItem('saved');
   if (saved !== null) {
     input = JSON.parse(saved) as Input;
+
+    if (input.pixels.length < puzzle.height) {
+      input.pixels = input.pixels.concat(Array.from(Array(puzzle.height - input.pixels.length), () => Array(puzzle.width).fill(null)));
+    }
   }
 
-  if (saved === null || input.pixels.length !== puzzle.height || input.pixels[0].length !== puzzle.width) {
+  // if (saved === null || input.pixels.length !== puzzle.height || input.pixels[0].length !== puzzle.width) {
+  if (saved === null) {
     clearInput(puzzle);
   }
 }
