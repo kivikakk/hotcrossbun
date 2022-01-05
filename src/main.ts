@@ -1,3 +1,7 @@
+import * as puzzles from './puzzles';
+
+type Puzzle = puzzles.Puzzle;
+
 let canvas = document.querySelector("canvas") as HTMLCanvasElement;
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -8,61 +12,7 @@ const mouse = {
   y: 0,
 };
 
-type Color = string
-interface Puzzle {
-  palette: Color[],
-  bg: Color,
-  width: number,
-  height: number,
-  pixels: number[][],
-};
 
-const puzzle: Puzzle = {
-  palette: [
-    'black',
-    'yellow',
-    'white',
-  ],
-  bg: '#666',
-  width: 10,
-  height: 10,
-  pixels: [
-    [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
-    [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-    [1, 1, 1, 0, 1, 1, 0, 1, 1, 1],
-    [1, 1, 1, 0, 1, 1, 0, 1, 1, 1],
-    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-    [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
-  ],
-};
-
-// const puzzle: Puzzle = {
-//   palette: [
-// 	'green',
-//     'white',
-//     'yellow',
-//     'black',
-//   ],
-//   bg: '#306090',
-//   width: 10,
-//   height: 10,
-//   pixels: [
-//     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//     [0, 1, 0, 0, 0, 2, 0, 2, 0, 0],
-//     [0, 1, 0, 0, 2, 2, 2, 2, 2, 0],
-//     [0, 1, 0, 0, 0, 2, 2, 2, 0, 0],
-//     [0, 1, 0, 0, 0, 0, 2, 0, 0, 0],
-//     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-//     [3, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-//     [3, 3, 0, 2, 0, 2, 3, 3, 0, 1],
-//     [3, 0, 3, 2, 0, 2, 3, 0, 3, 0],
-//     [3, 3, 3, 2, 2, 2, 3, 0, 3, 1],
-//   ],
-// };
 
 interface Input {
   pixels: (number | null)[][],
@@ -74,6 +24,7 @@ function emptyInput(puzzle: Puzzle): Input {
   };
 }
 
+const puzzle = puzzles.mouse;
 let input: Input = emptyInput(puzzle)
 
 const saved = window.localStorage.getItem('saved');
@@ -110,46 +61,6 @@ function redoState(): void {
     saveState();
   }
 }
-
-// const puzzle: Puzzle = {
-//   palette: [
-//     'darkgreen',
-//     'grey',
-//     'black',
-//     'pink',
-//   ],
-//   width: 10,
-//   height: 5,
-//   pixels: [
-//     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//     [0, 1, 0, 1, 0, 1, 1, 1, 0, 0],
-//     [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-//     [0, 2, 1, 2, 1, 1, 1, 1, 1, 3],
-//     [1, 1, 1, 1, 1, 3, 3, 3, 3, 3],
-//   ],
-// };
-
-const puzzle2: Puzzle = {
-  palette: [
-    'black',
-    'grey',
-  ],
-  bg: 'white',
-  width: 10,
-  height: 10,
-  pixels: [
-    [0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
-    [0, 0, 1, 1, 1, 1, 1, 1, 1, 0],
-    [0, 1, 1, 0, 0, 1, 1, 1, 1, 0],
-    [0, 1, 0, 0, 0, 0, 1, 1, 1, 1],
-    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
-    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
-    [0, 1, 0, 0, 0, 0, 1, 1, 1, 1],
-    [0, 1, 1, 0, 0, 1, 1, 1, 1, 1],
-    [0, 0, 1, 1, 1, 1, 1, 1, 1, 0],
-    [0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
-  ]
-};
 
 interface Hint {
   count: number,
