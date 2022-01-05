@@ -1,8 +1,12 @@
 let canvas = document.querySelector("canvas") as HTMLCanvasElement;
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-
 let ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+
+const mouse = {
+  x: 0,
+  y: 0,
+};
 
 type Color = string
 interface Puzzle {
@@ -36,6 +40,18 @@ const puzzle: Puzzle = {
   ],
 };
 
+interface Input {
+  pixels: (number | null)[][],
+};
+
+function emptyInput(puzzle: Puzzle): Input {
+  return {
+    pixels: Array.from(Array(puzzle.height), () => Array(puzzle.width).fill(null)),
+  };
+}
+
+const input: Input = emptyInput(puzzle)
+
 // const puzzle: Puzzle = {
 //   palette: [
 //     'darkgreen',
@@ -59,6 +75,7 @@ const puzzle2: Puzzle = {
     'black',
     'grey',
   ],
+  bg: 'white',
   width: 10,
   height: 10,
   pixels: [
@@ -121,15 +138,36 @@ function drawHint(puzzle: Puzzle, hint: Hint, c: number, tx: number, ty: number)
 const hintSize = 12;
 const hintGap = 6;
 
-function drawPuzzle(puzzle: Puzzle): void {
+let hovered: { x: number, y: number } | null = null
+let selectedColor = 0
+
+function drawPuzzle(puzzle: Puzzle, input: Input): void {
   const inset = 10;
   const offset = inset + puzzle.palette.length * (hintSize + hintGap);
   const square = 20;
   const gap = 2;
+  hovered = null
   for (let y = 0; y < puzzle.height; y++) {
     for (let x = 0; x < puzzle.width; x++) {
-      ctx.fillStyle = puzzle.palette[puzzle.pixels[y][x]];
-      ctx.fillRect(offset + x * (square + gap), offset + y * (square + gap), square, square);
+      const sx = offset + x * (square + gap)
+      const sy = offset + y * (square + gap)
+      const c = input.pixels[y][x]
+      if (mouse.x >= sx && mouse.x < sx + square && mouse.y >= sy && mouse.y < sy + square) {
+        hovered = { x, y }
+      }
+
+      if (c === null) {
+        if (hovered && hovered.x === x && hovered.y === y && mouseButtonDown !== 'right') {
+          ctx.fillStyle = puzzle.palette[selectedColor];
+          ctx.fillRect(sx, sy, square, square);
+        } else {
+          ctx.strokeStyle = puzzle.palette[selectedColor];
+          ctx.strokeRect(sx, sy, square, square);
+        }
+      } else if (c !== null) {
+        ctx.fillStyle = puzzle.palette[c];
+        ctx.fillRect(sx, sy, square, square);
+      }
     }
   }
 
@@ -161,15 +199,49 @@ function drawPuzzle(puzzle: Puzzle): void {
   }
 }
 
-let mouse = {
-  x: 0,
-  y: 0,
-};
+let mouseButtonDown: 'left' | 'right' | null = null
+
+function mouseTrigger(): void {
+  if (!mouseButtonDown) {
+    return
+  }
+  if (hovered) {
+    input.pixels[hovered.y][hovered.x] = (mouseButtonDown === 'left' ? selectedColor : null);
+  }
+}
 
 window.addEventListener("mousemove", (e) => {
   mouse.x = e.x;
   mouse.y = e.y;
+  mouseTrigger();
 });
+
+window.addEventListener("mousedown", (e) => {
+  if (e.button === 0) {
+    mouseButtonDown = 'left';
+  } else if (e.button === 2) {
+    mouseButtonDown = 'right';
+  } else {
+    mouseButtonDown = null;
+  }
+  mouseTrigger();
+})
+
+window.addEventListener("mouseup", (e) => {
+  mouseButtonDown = null;
+});
+
+window.addEventListener("contextmenu", (e) => {
+  e.preventDefault();
+})
+
+window.addEventListener("keydown", (e) => {
+  if (e.key === 'ArrowRight') {
+    selectedColor = (selectedColor + 1) % puzzle.palette.length;
+  } else if (e.key === 'ArrowLeft') {
+    selectedColor = (selectedColor + puzzle.palette.length - 1) % puzzle.palette.length;
+  }
+})
 
 window.addEventListener("resize", () => {
   canvas.height = window.innerHeight;
@@ -180,7 +252,7 @@ function animate() {
   requestAnimationFrame(animate);
   ctx.fillStyle = puzzle.bg;
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-  drawPuzzle(puzzle);
+  drawPuzzle(puzzle, input);
 
 }
 animate();
