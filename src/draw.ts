@@ -5,6 +5,11 @@ const INSET = 20;
 const SQUARE = 40;
 const GAP = 2;
 
+const SWATCH_WIDTH = 60;
+const SWATCH_HEIGHT = 30;
+const SWATCH_OFFSET = 30;
+const SWATCH_GAP = 10;
+
 const HINT_SIZE = 24;
 const HINT_GAP = 6;
 
@@ -88,5 +93,21 @@ export function drawPuzzle(ctx: CanvasRenderingContext2D, puzzle: Puzzle, input:
       SQUARE,
       SQUARE
     );
+  }
+
+  const sx = offset + puzzle.width * (SQUARE + GAP) + SWATCH_OFFSET;
+  for (let c = 0; c < puzzle.palette.length; c++) {
+    const sy = offset + (c + 0.5) * (SWATCH_HEIGHT + SWATCH_GAP);
+    const gradient = ctx.createLinearGradient(sx, sy, sx + SWATCH_WIDTH, sy);
+    gradient.addColorStop(0, puzzle.palette[c]);
+    gradient.addColorStop(0.5, puzzle.palette[c]);
+    gradient.addColorStop(1, puzzle.bg);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(sx, sy, SWATCH_WIDTH, SWATCH_HEIGHT);
+
+    if (c === selectedColor) {
+      ctx.strokeStyle = 'red';
+      ctx.strokeRect(sx, sy, SWATCH_WIDTH, SWATCH_HEIGHT);
+    }
   }
 }
