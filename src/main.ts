@@ -120,7 +120,12 @@ interface Hint {
   contiguous: boolean,
 };
 
-function hintPuzzle(puzzle: Puzzle, color: number, kind: 'row' | 'column', rc: number): Hint | null {
+interface PlayerHint {
+  hint: Hint,
+  broken: boolean,
+};
+
+function hintPuzzle(puzzle: Puzzle, color: number, kind: 'row' | 'column', rc: number): Hint {
   let broke = false;
   let contiguous = true;
   let count = 0;
@@ -136,26 +141,74 @@ function hintPuzzle(puzzle: Puzzle, color: number, kind: 'row' | 'column', rc: n
       broke = true;
     }
   }
-  if (!count) {
-    return null;
-  }
+  contiguous &&= count > 1;
   return {
     count,
-    contiguous: contiguous && count !== 1,
+    contiguous: contiguous,
   }
 }
 
-function drawHint(puzzle: Puzzle, hint: Hint, c: number, tx: number, ty: number): void {
-  const textWidth = ctx.measureText(`${hint.count}`).width;
+function playerHintPuzzle(puzzle: Puzzle, input: Input, color: number, kind: 'row' | 'column', rc: number): PlayerHint | null {
+  const hint = hintPuzzle(puzzle, color, kind, rc);
+  let broken = false;
+
+  let broke = false;
+  let contiguous = true;
+  let count = 0;
+  const length = kind === 'row' ? puzzle.width : puzzle.height;
+  for (let i = 0; i < length; i++) {
+    const p = kind === 'row' ? input.pixels[rc][i] : input.pixels[i][rc];
+    if (p === color) {
+      if (broke && count > 0) {
+        contiguous = false;
+      }
+      count += 1;
+    } else if (count > 0) {
+      broke = true;
+    }
+  }
+
+  contiguous &&= count > 1;
+
+  if (hint.count === count && hint.contiguous === contiguous) {
+    return null;
+  }
+
+  if (count > hint.count) {
+    broken = true;
+  }
+
+  if (count === hint.count && contiguous !== hint.contiguous) {
+    broken = true;
+  }
+
+  return {
+    hint,
+    broken,
+  };
+}
+
+function drawHint(puzzle: Puzzle, playerHint: PlayerHint | null, c: number, tx: number, ty: number): void {
+  if (!playerHint) {
+    return
+  }
+
+  const count = playerHint.hint.count;
+  const textWidth = ctx.measureText(`${count}`).width;
   ctx.fillStyle = puzzle.palette[c];
-  if (hint.contiguous) {
+  if (playerHint.hint.contiguous) {
     ctx.beginPath();
     ctx.ellipse(tx, ty, (hintSize + hintGap) / 2, hintSize / 2, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = puzzle.bg;
   }
-  ctx.fillText(`${hint.count}`, tx - textWidth / 2, ty);
+  ctx.fillText(`${count}`, tx - textWidth / 2, ty);
 
+  if (playerHint.broken) {
+    // XXX do better
+    ctx.strokeStyle = 'red';
+    ctx.strokeText('X', tx - textWidth / 2, ty);
+  }
 }
 
 const hintSize = 12;
@@ -199,25 +252,19 @@ function drawPuzzle(puzzle: Puzzle, input: Input): void {
 
   for (let y = 0; y < puzzle.height; y++) {
     for (let c = 0; c < puzzle.palette.length; c++) {
-      const hint = hintPuzzle(puzzle, c, 'row', y);
-      if (!hint) {
-        continue;
-      }
+      const playerHint = playerHintPuzzle(puzzle, input, c, 'row', y);
       const tx = inset + (hintSize + hintGap) * c + hintSize / 2;
       const ty = offset + y * (square + gap) + square / 2;
-      drawHint(puzzle, hint, c, tx, ty);
+      drawHint(puzzle, playerHint, c, tx, ty);
     }
   }
 
   for (let x = 0; x < puzzle.width; x++) {
     for (let c = 0; c < puzzle.palette.length; c++) {
-      const hint = hintPuzzle(puzzle, c, 'column', x);
-      if (!hint) {
-        continue;
-      }
+      const playerHint = playerHintPuzzle(puzzle, input, c, 'column', x);
       const tx = offset + x * (square + gap) + square / 2;
       const ty = inset + (hintSize + hintGap) * c + hintSize / 2;
-      drawHint(puzzle, hint, c, tx, ty);
+      drawHint(puzzle, playerHint, c, tx, ty);
     }
   }
 }
