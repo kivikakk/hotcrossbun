@@ -11,7 +11,9 @@ export function init(puzzle: Puzzle): void {
   const saved = window.localStorage.getItem('saved');
   if (saved !== null) {
     input = JSON.parse(saved) as Input;
-  } else {
+  }
+
+  if (saved === null || input.pixels.length !== puzzle.height || input.pixels[0].length !== puzzle.width) {
     clearInput(puzzle);
   }
 }

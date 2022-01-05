@@ -1,5 +1,6 @@
 import { Puzzle } from "./models";
 
+// By Naomi.
 export const popkun: Puzzle = {
   palette: [
     'black',
@@ -23,6 +24,7 @@ export const popkun: Puzzle = {
   ],
 };
 
+// By Ashe, chart by Naomi.
 export const iheartbun: Puzzle = {
   palette: [
 	'green',
@@ -47,6 +49,7 @@ export const iheartbun: Puzzle = {
   ],
 };
 
+// XXX
 export const crescent: Puzzle = {
   palette: [
     'black',
@@ -69,6 +72,7 @@ export const crescent: Puzzle = {
   ]
 };
 
+// XXX
 export const mouse: Puzzle = {
   palette: [
     'darkgreen',
