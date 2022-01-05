@@ -16,11 +16,12 @@ export let selectedColor = 0;
 export let mouseButtonDown: 'left' | 'right' | null = null;
 
 function mouseTrigger(): void {
-  if (!mouseButtonDown) {
+  if (!mouseButtonDown || !hovered) {
     return
   }
+  const oldValue = SaveState.input.pixels[hovered.y][hovered.x];
   const newValue = (mouseButtonDown === 'left' ? selectedColor : null);
-  if (hovered && SaveState.input.pixels[hovered.y][hovered.x] !== newValue) {
+  if ((oldValue === null && newValue !== null) || (oldValue !== null && newValue === null)) {
     SaveState.pushUndo();
     SaveState.clearRedos();
     SaveState.input.pixels[hovered.y][hovered.x] = newValue;
