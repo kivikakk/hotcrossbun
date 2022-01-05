@@ -1,5 +1,6 @@
 import { Puzzle } from "./models";
 
+// By Ashe, for Naomi.
 export const mimi: Puzzle = {
   palette: [
     '#fff',
