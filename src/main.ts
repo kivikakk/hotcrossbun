@@ -77,7 +77,7 @@ function emptyInput(puzzle: Puzzle): Input {
 let input: Input = emptyInput(puzzle)
 
 const saved = window.localStorage.getItem('saved');
-const MAX_UNDOS = 10;
+const MAX_UNDOS = 40;
 let undos: string[] = [];
 let redos: string[] = [];
 if (saved !== null) {
@@ -86,6 +86,13 @@ if (saved !== null) {
 
 function saveState(): void {
   window.localStorage.setItem('saved', JSON.stringify(input));
+}
+
+function pushUndo(): void {
+  undos.push(JSON.stringify(input));
+  if (undos.length > MAX_UNDOS) {
+    undos = undos.slice(undos.length - MAX_UNDOS);
+  }
 }
 
 function undoState(): void {
@@ -98,7 +105,7 @@ function undoState(): void {
 
 function redoState(): void {
   if (redos.length) {
-    undos.push(JSON.stringify(input));
+    pushUndo();
     input = JSON.parse(redos.pop() as string) as Input;
     saveState();
   }
@@ -306,7 +313,7 @@ function mouseTrigger(): void {
   }
   const newValue = (mouseButtonDown === 'left' ? selectedColor : null);
   if (hovered && input.pixels[hovered.y][hovered.x] !== newValue) {
-    undos.push(JSON.stringify(input));
+    pushUndo();
     redos = [];
     input.pixels[hovered.y][hovered.x] = newValue;
     saveState();
@@ -344,7 +351,7 @@ window.addEventListener("keydown", (e) => {
   } else if (e.key === 'ArrowLeft') {
     selectedColor = (selectedColor + puzzle.palette.length - 1) % puzzle.palette.length;
   } else if (e.key === 'c') {
-    undos.push(JSON.stringify(input));
+    pushUndo();
     redos = [];
     input = emptyInput(puzzle);
     saveState();
