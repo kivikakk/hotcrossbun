@@ -50,7 +50,7 @@ export function drawPuzzle(ctx: CanvasRenderingContext2D, puzzle: Puzzle, input:
           ctx.fillRect(sx, sy, SQUARE, SQUARE);
         } else {
           ctx.strokeStyle = puzzle.palette[selectedColor];
-          ctx.strokeRect(sx, sy, SQUARE, SQUARE);
+          ctx.strokeRect(sx, sy, SQUARE + GAP, SQUARE + GAP);
         }
       } else if (c !== null) {
         ctx.fillStyle = puzzle.palette[c];
@@ -78,5 +78,15 @@ export function drawPuzzle(ctx: CanvasRenderingContext2D, puzzle: Puzzle, input:
       const ty = INSET + (HINT_SIZE + HINT_GAP) * c + HINT_SIZE / 2;
       drawHint(ctx, puzzle, playerHint, c, tx, ty);
     }
+  }
+
+  if (hovered) {
+    ctx.strokeStyle = 'red';
+    ctx.strokeRect(
+      offset + hovered.x * (SQUARE + GAP),
+      offset + hovered.y * (SQUARE + GAP),
+      SQUARE,
+      SQUARE
+    );
   }
 }
