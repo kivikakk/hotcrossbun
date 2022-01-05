@@ -1,6 +1,6 @@
+import { Puzzle, Input, emptyInput } from './models';
 import * as puzzles from './puzzles';
-
-type Puzzle = puzzles.Puzzle;
+import * as SaveState from './save-state';
 
 let canvas = document.querySelector("canvas") as HTMLCanvasElement;
 canvas.width = window.innerWidth;
@@ -12,55 +12,8 @@ const mouse = {
   y: 0,
 };
 
-
-
-interface Input {
-  pixels: (number | null)[][],
-};
-
-function emptyInput(puzzle: Puzzle): Input {
-  return {
-    pixels: Array.from(Array(puzzle.height), () => Array(puzzle.width).fill(null)),
-  };
-}
-
 const puzzle = puzzles.mouse;
-let input: Input = emptyInput(puzzle)
-
-const saved = window.localStorage.getItem('saved');
-const MAX_UNDOS = 40;
-let undos: string[] = [];
-let redos: string[] = [];
-if (saved !== null) {
-  input = JSON.parse(saved) as Input;
-}
-
-function saveState(): void {
-  window.localStorage.setItem('saved', JSON.stringify(input));
-}
-
-function pushUndo(): void {
-  undos.push(JSON.stringify(input));
-  if (undos.length > MAX_UNDOS) {
-    undos = undos.slice(undos.length - MAX_UNDOS);
-  }
-}
-
-function undoState(): void {
-  if (undos.length) {
-    redos.push(JSON.stringify(input));
-    input = JSON.parse(undos.pop() as string) as Input;
-    saveState();
-  }
-}
-
-function redoState(): void {
-  if (redos.length) {
-    pushUndo();
-    input = JSON.parse(redos.pop() as string) as Input;
-    saveState();
-  }
-}
+SaveState.init(puzzle);
 
 interface Hint {
   count: number,
@@ -223,11 +176,11 @@ function mouseTrigger(): void {
     return
   }
   const newValue = (mouseButtonDown === 'left' ? selectedColor : null);
-  if (hovered && input.pixels[hovered.y][hovered.x] !== newValue) {
-    pushUndo();
-    redos = [];
-    input.pixels[hovered.y][hovered.x] = newValue;
-    saveState();
+  if (hovered && SaveState.input.pixels[hovered.y][hovered.x] !== newValue) {
+    SaveState.pushUndo();
+    SaveState.clearRedos();
+    SaveState.input.pixels[hovered.y][hovered.x] = newValue;
+    SaveState.saveState();
   }
 }
 
@@ -262,20 +215,14 @@ window.addEventListener("keydown", (e) => {
   } else if (e.key === 'ArrowLeft') {
     selectedColor = (selectedColor + puzzle.palette.length - 1) % puzzle.palette.length;
   } else if (e.key === 'c') {
-    pushUndo();
-    redos = [];
-    input = emptyInput(puzzle);
-    saveState();
+    SaveState.pushUndo();
+    SaveState.clearRedos();
+    SaveState.clearInput(puzzle);
+    SaveState.saveState();
   } else if (e.key === 'u') {
-    undoState();
+    SaveState.undoState();
   } else if (e.key === 'r') {
-    redoState();
-  } else if (e.key === 's') {
-    for (let y = 0; y < puzzle.height; y++) {
-      for (let x = 0; x < puzzle.width; x++) {
-        input.pixels[y][x] = puzzle.pixels[y][x];
-      }
-    }
+    SaveState.redoState();
   }
 })
 
@@ -288,7 +235,7 @@ function animate() {
   requestAnimationFrame(animate);
   ctx.fillStyle = puzzle.bg;
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-  drawPuzzle(puzzle, input);
+  drawPuzzle(puzzle, SaveState.input);
 
 }
 animate();
