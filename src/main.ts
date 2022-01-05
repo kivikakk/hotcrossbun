@@ -50,9 +50,21 @@ const puzzle2: Puzzle = {
   ]
 };
 
+interface Hint {
+  length: number,
+  contiguous: boolean,
+};
+
+function hintPuzzle(puzzle: Puzzle, rc: 'row' | 'column', i: number): Hint | null {
+  return {
+    length: 5,
+    contiguous: true,
+  };
+}
+
 function drawPuzzle(puzzle: Puzzle): void {
   const hintSize = 12;
-  const hintGap = 2;
+  const hintGap = 6;
 
   const inset = 10;
   const offset = inset + puzzle.palette.length * (hintSize + hintGap);
@@ -70,33 +82,41 @@ function drawPuzzle(puzzle: Puzzle): void {
 
   for (let y = 0; y < puzzle.height; y++) {
     for (let c = 0; c < puzzle.palette.length; c++) {
+      const hint = hintPuzzle(puzzle, 'row', y);
+      if (!hint) {
+        continue;
+      }
       const tx = inset + (hintSize + hintGap) * c + hintSize / 2;
       const ty = offset + y * (square + gap) + square / 2;
-      const textWidth = ctx.measureText('4').width;
+      const textWidth = ctx.measureText(`${hint.length}`).width;
       ctx.fillStyle = puzzle.palette[c];
-      if ((y + c) % 2 == 0) {
+      if (hint.contiguous) {
         ctx.beginPath();
-        ctx.ellipse(tx, ty, textWidth, hintSize / 2, 0, 0, Math.PI * 2);
+        ctx.ellipse(tx, ty, (hintSize + hintGap) / 2, hintSize / 2, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = 'white';
       }
-      ctx.fillText('4', tx - textWidth / 2, ty);
+      ctx.fillText(`${hint.length}`, tx - textWidth / 2, ty);
     }
   }
 
   for (let x = 0; x < puzzle.width; x++) {
     for (let c = 0; c < puzzle.palette.length; c++) {
+      const hint = hintPuzzle(puzzle, 'column', x);
+      if (!hint) {
+        continue;
+      }
       const tx = offset + x * (square + gap) + square / 2;
       const ty = inset + (hintSize + hintGap) * c + hintSize / 2;
-      const textWidth = ctx.measureText('4').width;
+      const textWidth = ctx.measureText(`${hint.length}`).width;
       ctx.fillStyle = puzzle.palette[c];
-      if ((x + c) % 2 == 0) {
+      if (hint.contiguous) {
         ctx.beginPath();
-        ctx.ellipse(tx, ty, textWidth, hintSize / 2, 0, 0, Math.PI * 2);
+        ctx.ellipse(tx, ty, (hintSize + hintGap) / 2, hintSize / 2, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = 'white';
       }
-      ctx.fillText('4', tx - textWidth / 2, ty);
+      ctx.fillText(`${hint.length}`, tx - textWidth / 2, ty);
     }
   }
 }
