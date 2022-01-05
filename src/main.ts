@@ -5,35 +5,66 @@ canvas.height = window.innerHeight;
 let ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
 interface Puzzle {
-  palette: Record<string, string>,
+  palette: string[],
   width: number,
   height: number,
   pixels: number[][],
 };
 
 const puzzle: Puzzle = {
-  palette: {
-    1: 'darkgreen',
-    2: 'grey',
-    3: 'black',
-    4: 'pink',
-  },
+  palette: [
+    'darkgreen',
+    'grey',
+    'black',
+    'pink',
+  ],
   width: 10,
   height: 5,
   pixels: [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 2, 1, 2, 1, 2, 2, 2, 1, 1],
-    [1, 2, 2, 2, 2, 2, 2, 2, 2, 1],
-    [1, 3, 2, 3, 2, 2, 2, 2, 2, 4],
-    [2, 2, 2, 2, 2, 4, 4, 4, 4, 4],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 0, 1, 1, 1, 0, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 2, 1, 2, 1, 1, 1, 1, 1, 3],
+    [1, 1, 1, 1, 1, 3, 3, 3, 3, 3],
   ],
 };
 
 function drawPuzzle(puzzle: Puzzle): void {
+  const hintSize = 12;
+  const hintGap = 2;
+
+  const inset = 10;
+  const offset = inset + puzzle.palette.length * (hintSize + hintGap);
+  const square = 20;
+  const gap = 2;
   for (let y = 0; y < puzzle.height; y++) {
     for (let x = 0; x < puzzle.width; x++) {
       ctx.fillStyle = puzzle.palette[puzzle.pixels[y][x]];
-      ctx.fillRect(x * 10, y * 10, 10, 10);
+      ctx.fillRect(offset + x * (square + gap), offset + y * (square + gap), square, square);
+    }
+  }
+
+  ctx.font = `${hintSize}px Arial Bold`;
+  ctx.textBaseline = 'middle'
+  ctx.fillStyle = 'black';
+
+  for (let y = 0; y < puzzle.height; y++) {
+    for (let c = 0; c < puzzle.palette.length; c++) {
+      const textWidth = ctx.measureText('4').width;
+      ctx.fillText(
+        '4',
+        inset + (hintSize + hintGap) * c + (hintSize - textWidth) / 2,
+        offset + y * (square + gap) + square / 2);
+    }
+  }
+
+  for (let x = 0; x < puzzle.width; x++) {
+    for (let c = 0; c < puzzle.palette.length; c++) {
+      const textWidth = ctx.measureText('4').width;
+      ctx.fillText(
+        '4',
+        offset + x * (square + gap) + (square - textWidth) / 2,
+        inset + (hintSize + hintGap) * c + hintSize / 2);
     }
   }
 }
