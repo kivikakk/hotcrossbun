@@ -47,7 +47,11 @@ window.addEventListener("mousedown", (e) => {
 });
 
 window.addEventListener("wheel", (e) => {
-  if (e.deltaY < 0) {
+  let deltaY = -e.deltaY;
+  if ((e as any).webkitDirectionInvertedFromDevice) {
+    deltaY = -deltaY;
+  }
+  if (deltaY < 0) {
     selectedColor = (selectedColor + 1) % puzzle.palette.length;
   } else {
     selectedColor = (selectedColor + puzzle.palette.length - 1) % puzzle.palette.length;
