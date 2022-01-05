@@ -9,7 +9,7 @@ let ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
 export const mouse = { x: 0, y: 0 };
 
-const puzzle = puzzles.mouse;
+const puzzle = puzzles.popkun;
 SaveState.init(puzzle);
 
 export let selectedColor = 0;
