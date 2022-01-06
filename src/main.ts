@@ -12,7 +12,8 @@ export const mouse = { x: 0, y: 0 };
 const puzzle = puzzles.mimi;
 SaveState.init(puzzle);
 
-export let selectedColor = 0;
+export let selectedColor: number | null = 0;
+
 export let mouseButtonDown: 'left' | 'right' | null = null;
 
 function mouseTrigger(): void {
@@ -46,15 +47,37 @@ window.addEventListener("mousedown", (e) => {
   mouseTrigger();
 });
 
+function nextColor(): void {
+  if (selectedColor === null) {
+    selectedColor = 0;
+  } else {
+    selectedColor = (selectedColor + 1) % puzzle.palette.length;
+    if (selectedColor === 0) {
+      selectedColor = null;
+    }
+  }
+}
+
+function prevColor(): void {
+  if (selectedColor === null) {
+    selectedColor = puzzle.palette.length - 1;
+  } else {
+    selectedColor = (selectedColor + puzzle.palette.length - 1) % puzzle.palette.length;
+    if (selectedColor === puzzle.palette.length - 1) {
+      selectedColor = null;
+    }
+  }
+}
+
 window.addEventListener("wheel", (e) => {
   let deltaY = -e.deltaY;
   if ((e as any).webkitDirectionInvertedFromDevice) {
     deltaY = -deltaY;
   }
   if (deltaY < 0) {
-    selectedColor = (selectedColor + 1) % puzzle.palette.length;
+    nextColor();
   } else {
-    selectedColor = (selectedColor + puzzle.palette.length - 1) % puzzle.palette.length;
+    prevColor();
   }
 });
 
@@ -68,9 +91,9 @@ window.addEventListener("contextmenu", (e) => {
 
 window.addEventListener("keydown", (e) => {
   if (e.key === 'ArrowRight') {
-    selectedColor = (selectedColor + 1) % puzzle.palette.length;
+    nextColor();
   } else if (e.key === 'ArrowLeft') {
-    selectedColor = (selectedColor + puzzle.palette.length - 1) % puzzle.palette.length;
+    prevColor();
   } else if (e.key === 'c') {
     SaveState.pushUndo();
     SaveState.clearRedos();

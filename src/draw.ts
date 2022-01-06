@@ -79,11 +79,12 @@ export function drawPuzzle(ctx: CanvasRenderingContext2D, puzzle: Puzzle, input:
       }
 
       if (c === null) {
+        const selectedStyle = selectedColor !== null ? puzzle.palette[selectedColor] : puzzle.bg;
         if (hovered && hovered.x === x && hovered.y === y && mouseButtonDown !== 'right') {
-          ctx.fillStyle = puzzle.palette[selectedColor];
+          ctx.fillStyle = selectedStyle;
           ctx.fillRect(sx, sy, SQUARE, SQUARE);
         } else {
-          ctx.strokeStyle = puzzle.palette[selectedColor];
+          ctx.strokeStyle = selectedStyle;
           ctx.strokeRect(sx, sy, SQUARE + GAP, SQUARE + GAP);
         }
       } else if (c !== null) {
@@ -104,16 +105,22 @@ export function drawPuzzle(ctx: CanvasRenderingContext2D, puzzle: Puzzle, input:
   }
 
   const sx = offset + puzzle.width * (SQUARE + GAP) + SWATCH_OFFSET;
-  for (let c = 0; c < puzzle.palette.length; c++) {
+  for (let c = 0; c < puzzle.palette.length + 1; c++) {
     const sy = offset + (c + 0.5) * (SWATCH_HEIGHT + SWATCH_GAP);
     const gradient = ctx.createLinearGradient(sx, sy, sx + SWATCH_WIDTH, sy);
-    gradient.addColorStop(0, puzzle.palette[c]);
-    gradient.addColorStop(0.5, puzzle.palette[c]);
-    gradient.addColorStop(1, puzzle.bg);
+    if (c < puzzle.palette.length) {
+      gradient.addColorStop(0, puzzle.palette[c]);
+      gradient.addColorStop(0.5, puzzle.palette[c]);
+      gradient.addColorStop(1, puzzle.bg);
+    } else {
+      gradient.addColorStop(0, puzzle.bg);
+      gradient.addColorStop(0.5, puzzle.bg);
+      gradient.addColorStop(1, 'red');
+    }
     ctx.fillStyle = gradient;
     ctx.fillRect(sx, sy, SWATCH_WIDTH, SWATCH_HEIGHT);
 
-    if (c === selectedColor) {
+    if (c === selectedColor || (c === puzzle.palette.length && selectedColor === null)) {
       ctx.strokeStyle = 'red';
       ctx.strokeRect(sx, sy, SWATCH_WIDTH, SWATCH_HEIGHT);
     }
